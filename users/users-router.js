@@ -1,5 +1,6 @@
 // Bring in express
 const express = require("express");
+const bcrypt = require("bcryptjs");
 
 // Bring in the helper functions from users-db
 const users = require("./users-db");
@@ -11,11 +12,16 @@ const router = express.Router();
 module.exports = router;
 // Endpoint to register or create a new user
 router.post("/register", (req, res) => {
-  const newUser = req.body;
+  const { username, password } = req.body;
+
+  //   Hashing the password
+  const bcryptHash = bcrypt.hashSync(password, 10);
+
+  const newUser = { username, password: bcryptHash };
   users
     .addUser(newUser.username, newUser.password)
     .then((user) => {
-      res.status(200).json({ message: `user created successfully` });
+      res.status(201).json({ message: `user created successfully` });
     })
     .catch((error) => {
       res.status(500).json({ message: error.message, stack: error.stack });
