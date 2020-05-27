@@ -27,3 +27,23 @@ router.post("/register", (req, res) => {
       res.status(500).json({ message: error.message, stack: error.stack });
     });
 });
+
+router.post("/login", (req, res) => {
+  const credentials = req.body;
+  users
+    .findUser(credentials.username)
+    .then((user) => {
+      // compareSync takes the hashed password and breaks it into parts
+      //   if (user&& credentials.password ===user.password)
+      if (user && bcrypt.compareSync(credentials.password, user.password)) {
+        res
+          .status(200)
+          .json({ message: `Logged in successfully, ${user.username}` });
+      } else {
+        res.status(401).json({ message: `Invalid credentials` });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ message: error.message, stack: error.stack });
+    });
+});
